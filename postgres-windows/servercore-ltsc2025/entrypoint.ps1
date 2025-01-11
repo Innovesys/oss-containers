@@ -31,7 +31,6 @@ if (-not (Test-Path -Path "$env:PGDATA\PG_VERSION")) {
 
     # Run initdb command
     Write-Host "Initializing database..."
-    echo "initdb $initdbArgs $env:PGDATA"
     & initdb $initdbArgs "$env:PGDATA"
 
     # Remove password file if it was created

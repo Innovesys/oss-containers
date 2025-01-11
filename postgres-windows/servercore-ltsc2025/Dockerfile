@@ -25,11 +25,11 @@ RUN Invoke-WebRequest -Uri $env:INSTALL_LINK -OutFile 'pgsql.exe'; \
 	Remove-Item -Force 'pgsql.exe'
 
 # Set the environment variables
-RUN cmd /C 'setx PATH "%PATH%;%INSTALL_DIR%\bin"'
 ENV PGDATA "$DATA_DIR"
+ENV PGBINS "$INSTALL_DIR\\bin"
 
 # Declare the port
 EXPOSE 5432
 
 COPY ./entrypoint.ps1 .
-ENTRYPOINT ["powershell", "./entrypoint.ps1"]
+ENTRYPOINT ["powershell", "-Command", "$env:Path+=\";$env:PGBINS\"; ./entrypoint.ps1"]

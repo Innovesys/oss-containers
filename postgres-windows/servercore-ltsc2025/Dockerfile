@@ -32,4 +32,4 @@ ENV PGBINS "$INSTALL_DIR\\bin"
 EXPOSE 5432
 
 COPY ./entrypoint.ps1 .
-ENTRYPOINT ["powershell", "-Command", "$env:Path+=\";$env:PGBINS\"; ./entrypoint.ps1"]
+ENTRYPOINT "$env:PATH+=\";$env:PGBINS\";& ./entrypoint.ps1"

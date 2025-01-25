@@ -2,6 +2,15 @@
 
 This repository contains the Dockerfile and entrypoint script to build a Docker image for PostgreSQL running on Windows containers.
 
+## Links
+
+- [GitHub](https://github.com/Innovesys/oss-containers)
+- [License](https://raw.githubusercontent.com/Innovesys/oss-containers/refs/heads/main/LICENSE)
+
+## Supported Tags
+
+- [`17`, `latest`, `17-servercore-ltsc2025`](https://github.com/Innovesys/oss-containers/blob/fa621e08d9cc4d45ccd49ccd610bc53ba9d0fb1e/postgres-windows/servercore-ltsc2025/Dockerfile)
+
 ## Usage
 
 To build and run the Docker image, follow these steps:

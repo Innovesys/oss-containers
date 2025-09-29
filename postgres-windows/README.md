@@ -9,7 +9,9 @@ This repository contains the Dockerfile and entrypoint script to build a Docker 
 
 ## Supported Tags
 
-- [`17`, `latest`, `17-servercore-ltsc2025`](https://github.com/Innovesys/oss-containers/blob/fa621e08d9cc4d45ccd49ccd610bc53ba9d0fb1e/postgres-windows/servercore-ltsc2025/Dockerfile)
+- [`18`, `18-nanoserver-ltsc2025`, `latest`](https://github.com/Innovesys/oss-containers/blob/cf5ae3faa7a42b092d068924650b3e5db17c5de7/postgres-windows/Dockerfile.nanoserver-ltsc2025)
+- [`18-servercore-ltsc2025`](https://github.com/Innovesys/oss-containers/blob/cf5ae3faa7a42b092d068924650b3e5db17c5de7/postgres-windows/Dockerfile.servercore-ltsc2025)
+- [`17`, `17-servercore-ltsc2025`](https://github.com/Innovesys/oss-containers/blob/fa621e08d9cc4d45ccd49ccd610bc53ba9d0fb1e/postgres-windows/servercore-ltsc2025/Dockerfile)
 
 ## Usage
 

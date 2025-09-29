@@ -17,7 +17,7 @@ To build and run the Docker image, follow these steps:
 
 1. **Build the Image**:
     ```sh
-    docker build -t postgres-windows .
+    docker build -t postgres-windows -f Dockerfile.nanoserver-ltsc2025 .
     ```
 
 2. **Run the Container**:

@@ -1,0 +1,61 @@
+# =====================================================================
+# Stage 1: Builder stage that installs VC++ Redistributable and PostgreSQL
+# =====================================================================
+FROM mcr.microsoft.com/windows/servercore:ltsc2025 AS builder
+
+# Set the shell to PowerShell
+# For some reason, double quotes in RUN commands are consumed by Docker unless they are escaped
+# but single quotes are not affected.
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Arguments for builder stage
+ARG INSTALL_LINK="https://get.enterprisedb.com/postgresql/postgresql-18.0-1-windows-x64.exe"
+ARG INSTALL_DIR="C:\\pgsql"
+
+# Install the VC++ Redistributable
+RUN Invoke-WebRequest 'https://aka.ms/vs/17/release/vc_redist.x64.exe' -OutFile 'setup.exe'; \
+    & .\setup.exe /install /passive /norestart | Out-Default; \
+    if ($LASTEXITCODE -ne 0) { throw \"vcredist installer failed with exit code $LASTEXITCODE\" }; \
+	Remove-Item -Force 'setup.exe'
+
+# Install PostgreSQL
+RUN Invoke-WebRequest -Uri \"$env:INSTALL_LINK\" -OutFile 'setup.exe'; \
+    & .\setup.exe --mode unattended --unattendedmodeui none --extract-only yes \
+        --install_runtimes 0 --enable-components 'server,commandlinetools' \
+        --prefix \"$env:INSTALL_DIR\" | Out-Default; \
+    if ($LASTEXITCODE -ne 0) { throw \"PostgreSQL installer failed with exit code $LASTEXITCODE\" }; \
+	Remove-Item -Force 'setup.exe'
+
+# =====================================================================
+# Stage 2: Final image based on "Windows NanoServer LTSC 2025 64 bits" with PowerShell
+# =====================================================================
+FROM m365pnp/powershell:3.1.167-nightly-windows-amd64
+
+# Set the shell to PowerShell
+# Note that the executable is called "pwsh.exe" in this image
+SHELL ["pwsh", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Download ServiceMonitor
+RUN Invoke-WebRequest -Uri 'https://github.com/microsoft/IIS.ServiceMonitor/releases/download/v2.0.1.10/ServiceMonitor.exe' -OutFile 'ServiceMonitor.exe'
+
+# Arguments for final image stage
+ARG INSTALL_DIR="C:\\pgsql"
+ARG DATA_DIR="C:\\pgsql\\data"
+
+# Copy VC++ redist DLLs from the builder stage
+COPY --from=builder C:/Windows/System32/msvcp140.dll C:/Windows/System32/
+COPY --from=builder C:/Windows/System32/vcruntime140.dll C:/Windows/System32/
+COPY --from=builder C:/Windows/System32/vcruntime140_1.dll C:/Windows/System32/
+
+# Copy the PostgreSQL files from builder stage
+COPY --from=builder ${INSTALL_DIR} ${INSTALL_DIR}
+
+# Set the environment variables
+ENV PGDATA "$DATA_DIR"
+ENV PGBINS "$INSTALL_DIR\\bin"
+
+# Declare the port
+EXPOSE 5432
+
+COPY ./entrypoint.ps1 .
+ENTRYPOINT "$env:PATH+=\";$env:PGBINS;C:\Windows\System32\";& ./entrypoint.ps1"

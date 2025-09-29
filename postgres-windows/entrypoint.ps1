@@ -3,6 +3,9 @@ Write-Host "Ensuring PGDATA directory permissions..."
 New-Item -Path "$env:PGDATA" -ItemType Directory -Force | Out-Null
 & icacls "$env:PGDATA" /grant "${env:USERNAME}:(OI)(CI)F" | Out-Null
 
+# Add PG bins to path
+$env:PATH += ";$env:PGBINS";
+
 # Initialize database if it's uninitialized
 if (-not (Test-Path -Path "$env:PGDATA\PG_VERSION")) {
     # Set default values for environment variables

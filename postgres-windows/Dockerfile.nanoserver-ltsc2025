@@ -51,11 +51,13 @@ COPY --from=builder C:/Windows/System32/vcruntime140_1.dll C:/Windows/System32/
 COPY --from=builder ${INSTALL_DIR} ${INSTALL_DIR}
 
 # Set the environment variables
+# Path needs to be manually set on the m365pnp/powershell images because it does not contain System32
 ENV PGDATA "$DATA_DIR"
 ENV PGBINS "$INSTALL_DIR\\bin"
+ENV PATH "C:\\pwsh;C:\\Windows\\System32"
 
 # Declare the port
 EXPOSE 5432
 
 COPY ./entrypoint.ps1 .
-ENTRYPOINT "$env:PATH+=\";$env:PGBINS;C:\Windows\System32\";& ./entrypoint.ps1"
+ENTRYPOINT "& ./entrypoint.ps1"

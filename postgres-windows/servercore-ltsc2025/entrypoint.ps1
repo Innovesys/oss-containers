@@ -1,7 +1,7 @@
 # Ensure PGDATA directory exists and has correct permissions
 Write-Host "Ensuring PGDATA directory permissions..."
-New-Item -Path $env:PGDATA -ItemType Directory -Force | Out-Null
-& icacls $env:PGDATA /grant "${env:USERNAME}:(OI)(CI)F" | Out-Null
+New-Item -Path "$env:PGDATA" -ItemType Directory -Force | Out-Null
+& icacls "$env:PGDATA" /grant "${env:USERNAME}:(OI)(CI)F" | Out-Null
 
 # Initialize database if it's uninitialized
 if (-not (Test-Path -Path "$env:PGDATA\PG_VERSION")) {
@@ -19,11 +19,11 @@ if (-not (Test-Path -Path "$env:PGDATA\PG_VERSION")) {
     # Append arguments based on environment variables
     if ($env:POSTGRES_PASSWORD) {
         $pwFile = New-TemporaryFile
-        $env:POSTGRES_PASSWORD | Out-File -FilePath $pwFile -Force -Encoding utf8
-        $initdbArgs += "--pwfile", $pwFile
+        $env:POSTGRES_PASSWORD | Out-File -FilePath "$pwFile" -Force -Encoding utf8
+        $initdbArgs += "--pwfile", "$pwFile"
     }
     if ($env:POSTGRES_INITDB_WALDIR) {
-        $initdbArgs += "--waldir", $env:POSTGRES_INITDB_WALDIR
+        $initdbArgs += "--waldir", "$env:POSTGRES_INITDB_WALDIR"
     }
     if ($env:POSTGRES_INITDB_ARGS) {
         $initdbArgs += $env:POSTGRES_INITDB_ARGS.Split(' ')
@@ -31,10 +31,10 @@ if (-not (Test-Path -Path "$env:PGDATA\PG_VERSION")) {
 
     # Run initdb command
     Write-Host "Initializing database..."
-    & initdb $initdbArgs "$env:PGDATA" | Out-Default
+    & initdb @initdbArgs "$env:PGDATA" | Out-Default
 
     # Remove password file if it was created
-    if ($pwFile) { Remove-Item -Path $pwFile -Force }
+    if ($pwFile) { Remove-Item -Path "$pwFile" -Force }
 
     # Set the authentication method based on POSTGRES_PASSWORD
     $authMethod = if ($env:POSTGRES_PASSWORD) { "scram-sha-256" } else { "trust" }
@@ -68,4 +68,4 @@ Write-Host "Registering and starting PostgreSQL service..."
 if (-not (Get-Service -Name "postgresql" -ErrorAction SilentlyContinue)) {
     & pg_ctl register -D "$env:PGDATA" -N postgresql | Out-Default
 }
-& C:\ServiceMonitor.exe postgresql
+& .\ServiceMonitor.exe postgresql
